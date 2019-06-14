@@ -1,5 +1,7 @@
 <template>
     <div class="movie_body">
+        <Loading v-if = "isLoading" />
+        <Scroller v-else>
             <ul>
                 <!-- <li>
                     <div class="pic_show"><img src="/images/movie_1.jpg"></div>
@@ -62,6 +64,7 @@
                     </div>
                 </li> 
             </ul>
+        </Scroller>
     </div>
 </template>
 
@@ -71,7 +74,8 @@ export default {
     data(){
         return {
             comingList : [],
-            prevCityId : -1
+            prevCityId : -1,
+            isLoading : true
         };
     },
     mounted(){
@@ -79,6 +83,7 @@ export default {
             var msg = res.data.msg;
             if( msg === 'ok'){
                 this.comingList =  res.data.data.comingList;
+                this.isLoading = false;
             }
         })
     }
