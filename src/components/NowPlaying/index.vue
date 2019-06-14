@@ -1,5 +1,6 @@
 <template>
     <div class="movie_body" ref="movie_body">
+        <Loading v-if = 'isLoading' />
         <!-- <ul>
             <li>
                 <div class="pic_show"><img src="/images/movie_1.jpg"></div>
@@ -50,29 +51,36 @@
                 </div>
             </li>
          </ul> -->
-        <ul>
-            <li v-for="item in movieList" :key="item.id">
-                <div class="pic_show"><img :src="item.img | setWh('128.180')"></div>
-                <div class="info_list">
-                    <h2>{{ item.nm }} <img v-if='item.version' src = "@/assets/maxs.png" alt=""></h2>
-                    <p>观众评 <span class="grade">{{item.sc}}</span></p>
-                    <p>主演: {{item.star}}</p>
-                    <p>{{ item.showInfo }}</p>
-                </div>
-                <div class="btn_mall">
-                    购票    
-                </div>
-            </li>
-        </ul>
+       <Scroller v-else :handleToScroll="handleToScroll" :handleToTouchEnd="handleToTouchEnd">
+            <ul>
+                <li class="pullDown">{{pullDownMsg}}</li>
+                <li v-for="item in movieList" :key="item.id">
+                    <div class="pic_show"><img :src="item.img | setWh('128.180')" @tap="handleToDetail"></div>
+                    <div class="info_list">
+                        <h2>{{ item.nm }} <img v-if='item.version' src = "@/assets/maxs.png" alt=""></h2>
+                        <p>观众评 <span class="grade">{{item.sc}}</span></p>
+                        <p>主演: {{item.star}}</p>
+                        <p>{{ item.showInfo }}</p>
+                    </div>
+                    <div class="btn_mall">
+                        购票    
+                    </div>
+                </li>
+            </ul>
+        </Scroller>
     </div>      
 </template>
 
 <script>
+// import { setTimeout } from 'timers';
+
 export default {
     name : 'nowPlaying',
     data(){
         return{
-            movieList : []
+            movieList : [],
+            pullDownMsg : '',
+            isLoading : true
         }
     },
     mounted(){
@@ -80,8 +88,58 @@ export default {
             var msg = res.data.msg;
             if(msg === 'ok'){
                 this.movieList = res.data.data.movieList;
+                this.isLoading = false;
+                // this.$nextTick(() =>{
+                //     var scroll = new BScroll(this.$refs.movie_body,{
+                //         tap : true,
+                //         probeType : 1
+                //     });
+                //     scroll.on('scroll',()=>{
+                //         // console.info(22);
+                //         this.pullDownMsg = '正在更新中...';
+                //     });
+                //     scroll.on('touchEnd',(pos)=>{
+                //         // console.info(33);
+                //         if(pos.y > 30){
+                //             this.axios.get('/api/movieOnInfoList?cityId=1').then((res) =>{
+                //                 var msg = res.data.msg;
+                //                 if(msg === 'ok'){
+                //                     this.pullDownMsg = '更新成功';
+                //                     setTimeout(()=>{
+                //                          this.movieList = res.data.data.movieList;
+                //                          this.pullDownMsg = '';
+                //                     },1000);
+                //                 }
+                //             })
+                //         }
+                //     })
+                // })
             }
         })
+    },
+    methods:{
+        handleToDetail(){
+            console.info(11)
+        },
+        handleToScroll(pos){
+            if(pos.y > 30){
+                this.pullDownMsg = '正在更新中';
+            }
+        },
+        handleToTouchEnd(pos){
+            if(pos.y > 30){
+                this.axios.get('/api/movieOnInfoList?cityId=1').then((res) =>{
+                    var msg = res.data.msg;
+                    if(msg === 'ok'){
+                        this.pullDownMsg = '更新成功';
+                        setTimeout(()=>{
+                                this.movieList = res.data.data.movieList;
+                                this.pullDownMsg = '';
+                        },1000);
+                    }
+                })
+            }
+        }
     }
 }
 </script> 
