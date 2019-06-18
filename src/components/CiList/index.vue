@@ -79,7 +79,7 @@
                     </div>
                     <div class="address">
                         <span>{{ item.addr }}</span>
-                        <span>{{ item.distance }}</span>
+                        <span>{{ item.distance }}</span> 
                     </div>
                     <div class="card">
                         <div v-for="(num,key) in item.tag" v-if="num===1" :key="key" :class=" key | classCard ">{{ key | formatCard }}</div>
@@ -95,15 +95,21 @@ export default {
     name : 'ciList',
     data(){
         return{
-            cinemaList : []
+            cinemaList : [],
+            prevCityId : -1
         }
     },
-     mounted(){
-         console.info(11)
-        this.axios.get('/api/cinemaList?cityId=10').then((res) =>{
+    activated(){
+        var cityId = this.$store.state.city.id;
+        if(this.prevCityId === cityId){
+             return;
+        }
+        this.isLoading = true;
+        this.axios.get('/api/cinemaList?cityId=' + cityId).then((res) =>{
             var msg = res.data.msg;
             if(msg === 'ok'){
                 this.cinemaList = res.data.data.cinemas;
+                this.prevCityId = cityId;
             }
         })
     },
