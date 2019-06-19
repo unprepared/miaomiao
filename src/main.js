@@ -15,6 +15,9 @@ Vue.component('Scroller', Scroller);
 Vue.component('Loading', Loading);
 
 Vue.filter('setWh', (url, arg) => {
+    if (url == '' || url == null || url == undefined) {
+        return url;
+    }
     return url.replace(/w\.h/, arg);
 })
 
